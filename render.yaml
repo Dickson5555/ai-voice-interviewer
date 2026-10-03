@@ -3,7 +3,7 @@ services:
     name: ai-voice-interviewer
     runtime: python
     plan: free
-    buildCommand:  uv pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
