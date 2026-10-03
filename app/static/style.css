@@ -1,0 +1,428 @@
+
+
+:root {
+  --bg: #000000;
+  --ink: #ffffff;
+  --ink-dim: rgba(255, 255, 255, 0.6);
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-strong: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.14);
+  --accent-a: #00c9ff;
+  --accent-b: #7a5cff;
+  --accent-c: #ff4ecb;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* ---------------- Ambient glow ---------------- */
+.bg-glow {
+  position: fixed;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-glow--1 {
+  background: radial-gradient(circle, var(--accent-a), transparent 60%);
+  top: -20vmax; left: -20vmax;
+}
+.bg-glow--2 {
+  background: radial-gradient(circle, var(--accent-c), transparent 60%);
+  bottom: -20vmax; right: -20vmax;
+}
+
+/* ---------------- Stage layout ---------------- */
+.stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 3rem 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* ---------------- Orb ---------------- */
+.orb-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.orb {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  isolation: isolate;
+  filter: drop-shadow(0 0 60px rgba(122, 92, 255, 0.45));
+  transition: transform 0.4s ease;
+}
+
+/* core sphere */
+.orb__core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, #ffffff 0%, transparent 18%),
+    radial-gradient(circle at 65% 70%, #001b3a 0%, transparent 45%),
+    conic-gradient(from 0deg,
+      #00c9ff 0deg,
+      #3a6bff 60deg,
+      #7a5cff 130deg,
+      #ff4ecb 200deg,
+      #ff8a4e 260deg,
+      #00e5b0 320deg,
+      #00c9ff 360deg);
+  filter: blur(0.5px) saturate(1.15);
+  animation: orbSpin 18s linear infinite;
+}
+
+/* liquid inner layers */
+.orb__layer {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.orb__layer--a {
+  background: radial-gradient(circle at 40% 30%, #7a5cffcc, transparent 55%);
+  filter: blur(14px);
+  animation: orbSpin 12s linear infinite reverse;
+}
+.orb__layer--b {
+  background: radial-gradient(circle at 70% 65%, #ff4ecbcc, transparent 55%);
+  filter: blur(18px);
+  animation: orbSpin 22s linear infinite;
+}
+.orb__layer--c {
+  background: radial-gradient(circle at 50% 80%, #00e5b0aa, transparent 50%);
+  filter: blur(22px);
+  animation: orbSpin 30s linear infinite reverse;
+}
+
+/* soft outer rim */
+.orb::after {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    transparent 62%,
+    rgba(122, 92, 255, 0.35) 75%,
+    transparent 82%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* pulse rings (visible in listening / speaking states) */
+.orb__rings { position: absolute; inset: 0; pointer-events: none; }
+.orb__rings span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  opacity: 0;
+  transform: scale(0.9);
+}
+.orb__rings span:nth-child(1) { animation-delay: 0s; }
+.orb__rings span:nth-child(2) { animation-delay: 0.6s; }
+.orb__rings span:nth-child(3) { animation-delay: 1.2s; }
+
+/* ---------- Orb states ---------- */
+.orb[data-state="idle"] {
+  animation: breathe 5s ease-in-out infinite;
+}
+.orb[data-state="listening"] .orb__rings span {
+  animation: ringOut 2.4s ease-out infinite;
+}
+.orb[data-state="thinking"] {
+  animation: jitter 0.6s ease-in-out infinite;
+}
+.orb[data-state="thinking"] .orb__core {
+  filter: blur(1px) saturate(0.6);
+}
+.orb[data-state="speaking"] {
+  animation: speakPulse 0.9s ease-in-out infinite;
+}
+.orb[data-state="speaking"] .orb__rings span {
+  animation: ringOut 1.6s ease-out infinite;
+}
+
+/* keyframes */
+@keyframes orbSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+@keyframes jitter {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-2px, 1px) scale(1.01); }
+  75%      { transform: translate(2px, -1px) scale(1.01); }
+}
+@keyframes speakPulse {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.08); }
+}
+@keyframes ringOut {
+  0%   { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(1.7); }
+}
+
+.orb__status {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+/* ---------------- Glass Start Button ---------------- */
+.btn-glass {
+  position: relative;
+  padding: 1rem 2.4rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.04));
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  cursor: pointer;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  overflow: hidden;
+}
+.btn-glass:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 44px rgba(122, 92, 255, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.btn-glass:active:not(:disabled) {
+  transform: translateY(0);
+}
+.btn-glass:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-glass::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg,
+    transparent,
+    rgba(0, 201, 255, 0.35),
+    transparent 40%);
+  animation: sheen 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes sheen {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------- Transcript Panel ---------------- */
+.panel {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  width: min(380px, 90vw);
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 15, 25, 0.55);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  transform: translateX(calc(100% + 2rem));
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 5;
+}
+.panel.is-open { transform: translateX(0); }
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel__head h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+.panel__close {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.panel__close:hover { color: var(--ink); }
+
+.panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+.panel__body::-webkit-scrollbar { width: 6px; }
+.panel__body::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 3px;
+}
+
+.bubble {
+  max-width: 90%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  word-wrap: break-word;
+  animation: bubbleIn 0.3s ease-out;
+}
+.bubble--ai {
+  align-self: flex-start;
+  background: linear-gradient(135deg,
+    rgba(0, 201, 255, 0.15),
+    rgba(122, 92, 255, 0.15));
+  border: 1px solid rgba(122, 92, 255, 0.35);
+}
+.bubble--user {
+  align-self: flex-end;
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+}
+.bubble--meta {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  background: none;
+  border: none;
+  padding: 0 0.25rem;
+}
+.bubble__tag {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 0.35rem;
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.score-pill {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--ink-dim);
+}
+.score-pill strong { color: var(--ink); font-size: 0.95rem; }
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.btn-ghost:hover {
+  background: var(--glass);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* ---------------- Panel toggle (small screens) ---------------- */
+.panel-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  z-index: 4;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 720px) {
+  .orb { width: 200px; height: 200px; }
+  .panel {
+    top: auto;
+    right: 0.75rem;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    height: 60vh;
+    width: auto;
+  }
+  .btn-glass { padding: 0.85rem 1.8rem; font-size: 0.95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb__core, .orb__layer, .orb, .btn-glass::before {
+    animation: none !important;
+  }
+}

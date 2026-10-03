@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: ai-voice-interviewer
+    runtime: python
+    plan: free
+    buildCommand:  uv pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: LANGSMITH_TRACING
+        value: "true"
+      - key: LANGSMITH_API_KEY
+        sync: false
+      - key: LANGSMITH_PROJECT
+        value: ai-voice-interviewer
+      - key: PYTHON_VERSION
+        value: "3.11.9"

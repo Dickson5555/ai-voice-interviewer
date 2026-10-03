@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Voice Interviewer</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- Ambient background glow -->
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+
+  <main class="stage">
+    <!-- The Orb -->
+    <section class="orb-wrap" aria-label="AI Assistant">
+      <div class="orb" id="orb" data-state="idle">
+        <div class="orb__core"></div>
+        <div class="orb__layer orb__layer--a"></div>
+        <div class="orb__layer orb__layer--b"></div>
+        <div class="orb__layer orb__layer--c"></div>
+        <div class="orb__rings">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+      <p class="orb__status" id="status">Ready</p>
+    </section>
+
+    <!-- Primary control -->
+    <button class="btn-glass" id="startBtn" type="button">
+      <span class="btn-glass__label">Start Interview</span>
+    </button>
+
+    <!-- Transcript / conversation panel -->
+    <aside class="panel" id="panel" aria-live="polite">
+      <header class="panel__head">
+        <h2>Conversation</h2>
+        <button class="panel__close" id="panelClose" type="button" aria-label="Close">×</button>
+      </header>
+      <div class="panel__body" id="transcript"></div>
+      <footer class="panel__foot">
+        <span class="score-pill">Score: <strong id="scoreValue">0</strong>/10</span>
+        <button class="btn-ghost" id="resetBtn" type="button">Reset</button>
+        <button class="btn-ghost" id="endBtn" type="button">End</button>
+      </footer>
+    </aside>
+
+    <!-- Toggle to reopen transcript on small screens -->
+    <button class="panel-toggle" id="panelToggle" type="button" aria-label="Open transcript">
+      Transcript
+    </button>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
